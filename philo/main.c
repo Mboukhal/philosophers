@@ -6,17 +6,11 @@
 /*   By: mboukhal <mboukhal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/15 11:38:04 by mboukhal          #+#    #+#             */
-/*   Updated: 2022/05/23 23:04:18 by mboukhal         ###   ########.fr       */
+/*   Updated: 2022/05/24 10:50:20 by mboukhal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-void	print_out(t_philo *p, char *message)
-{
-	printf("%lld ms %d %s\n", now_time() - p->root->start_time,
-		p->id, message);
-}
 
 static int	ft_atoi(char *s)
 {
@@ -34,6 +28,19 @@ static int	ft_atoi(char *s)
 	return (result);
 }
 
+static void	set(t_rule *rules, char **av, int ac)
+{
+	if (ac == 6)
+		rules->max_meal = ft_atoi(av[5]);
+	else
+		rules->max_meal = -2;
+	rules->all_done = 0;
+	rules->philo_nb = ft_atoi(av[1]);
+	rules->tt_die = ft_atoi(av[2]);
+	rules->tt_eat = ft_atoi(av[3]);
+	rules->tt_sleep = ft_atoi(av[4]);
+}
+
 int	init_rules(t_rule *rules, char **av, int ac)
 {
 	int	i;
@@ -45,25 +52,18 @@ int	init_rules(t_rule *rules, char **av, int ac)
 		j = -1;
 		while (av[i][++j])
 			if (!((av[i][j] >= 48 && av[i][j] <= 57) || av[i][0] == '+'))
-				return (w_error("Expected unsigned integers arguments !"));
+				return (w_error());
 	}
-	if (ac == 6)
-		rules->max_meal = ft_atoi(av[5]);
-	else if (rules->max_meal <= 0 && ac == 6)
-		return (w_error("Last can not be less then 1"));
-	else
-		rules->max_meal = -2;
-	rules->all_done = 0;
-	rules->philo_nb = ft_atoi(av[1]);
-	rules->tt_die = ft_atoi(av[2]);
-	rules->tt_eat = ft_atoi(av[3]);
-	rules->tt_sleep = ft_atoi(av[4]);
+	set(rules, av, ac);
+	if (rules->max_meal <= 0 && ac == 6)
+		return (w_error());
 	if (rules->philo_nb == -1 || rules->tt_die == -1 || rules->tt_eat == -1
 		|| rules->tt_sleep == -1 || rules->max_meal == -1)
-		return (w_error("Invalid arguments"));
-	if (rules->philo_nb < 1 || rules->philo_nb > INT_MAX || rules->tt_die < 0
+		return (w_error());
+	if (rules->philo_nb < 1 || rules->tt_die < 0
 		|| rules->tt_eat < 0 || rules->tt_sleep < 0)
-		return (w_error("Invalid arguments"));
+		return (w_error());
+	rules->all_done = 0;
 	return (EXIT_SUCCESS);
 }
 
@@ -88,11 +88,11 @@ static int	init_locks(t_rule *lock)
 		while (--i >= 0)
 			pthread_mutex_destroy(&(lock->fork[i]));
 	if (i == 0)
-		return (w_error("Mutex init intializing error !"));
+		return (w_error());
 	if (pthread_mutex_init(&(lock->done_lock), NULL))
-		return (w_error("Mutex init intializing error !"));
+		return (w_error());
 	if (pthread_mutex_init(&(lock->stdout_lock), NULL))
-		return (w_error("Mutex init intializing error !"));
+		return (w_error());
 	return (EXIT_SUCCESS);
 }
 
@@ -101,7 +101,7 @@ int	main(int ac, char **av)
 	t_rule	philo_rules;
 
 	if (ac < 5 || ac > 6)
-		return (w_error("Invalid argument ..."));
+		return (w_error());
 	if (init_rules(&philo_rules, av, ac) || init_locks(&philo_rules))
 		return (EXIT_FAILURE);
 	else

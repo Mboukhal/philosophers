@@ -6,7 +6,7 @@
 /*   By: mboukhal <mboukhal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/17 14:01:02 by mboukhal          #+#    #+#             */
-/*   Updated: 2022/05/23 22:57:46 by mboukhal         ###   ########.fr       */
+/*   Updated: 2022/05/24 10:10:30 by mboukhal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,6 @@ typedef struct philo
 	int				r_fork;
 	int				meal_nb;
 	long long		last_meal_time;
-	long long		t1;
 	struct s_rules	*root;
 
 }			t_philo;
@@ -68,18 +67,16 @@ typedef struct s_rules
 	int				all_done;
 	pthread_mutex_t	fork[250];
 	pthread_mutex_t	stdout_lock;
-	pthread_mutex_t	time_lock;
 	pthread_mutex_t	done_lock;
 	t_philo			philo[250];		
 
 }				t_rule;
 
 void			print_out(t_philo *p, char *message);
-int				w_error(char *str);
+int				w_error(void);
 int				emulation(t_rule *rule);
 int				init_rules(t_rule *rules, char **av, int ac);
 long long		now_time(void);
-void			clean_exit(t_rule *r);
 int				cheak_for_death(t_rule *public);
 unsigned int	psleep(int s);
 
